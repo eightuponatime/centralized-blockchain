@@ -1,26 +1,21 @@
 package main
 
 import (
-	"time"
-
 	"github.com/eightuponatime/centralized-blockchain/internal/blockchain"
-	"github.com/eightuponatime/centralized-blockchain/internal/models"
+	"github.com/eightuponatime/centralized-blockchain/internal/handlers"
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 )
 
 func main() {
+	bc := blockchain.NewBlockchain("blockchain.dat", "my-secret-key-1234567890")
+
+	transactionHandler := handlers.NewTransactionHandler(bc)
+
 	router := gin.Default()
+	router.POST("/createGenesis", transactionHandler.CreateGenesis)
+	router.POST("/transactions", transactionHandler.CreateTransaction)
 
-	payment := models.Payment{
-		ClientId:    1,
-		TrainerId:   2,
-		PaymentDate: time.Now(),
-		Amount:      decimal.NewFromFloat(100.50),
+	if err := router.Run("localhost:8082"); err != nil {
+		panic(err)
 	}
-
-	block := blockchain.NewBlock(&payment, []byte{})
-	_ = block
-
-	router.Run("localhost:8080")
 }
