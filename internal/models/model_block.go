@@ -40,7 +40,7 @@ type BlockIndex struct {
 // Index manages block indices for efficient lookup.
 type Index struct {
 	ByClientId        map[int][]BlockIndex
-	ByClientTrainerId map[string][]BlockIndex
+	ByClientTrainerId map[string][]BlockIndex 
 }
 
 // NewIndex creates a new index.

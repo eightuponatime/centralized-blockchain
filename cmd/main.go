@@ -5,6 +5,7 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -25,7 +26,8 @@ func main() {
 	benchFlag := flag.Bool("bench", false, "Run performance benchmark")
 	flag.Parse()
 
-	filename := "blockchain.dat"
+	//filename := "/data/blockchain.dat"
+	filename := "cmd/blockchain.dat"
 	secretKey := os.Getenv("SECRET_KEY")
 	if secretKey == "" {
 		secretKey = "my-secret-key-1234567890"
@@ -243,6 +245,42 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"blocks": blockInfos,
 			"count":  len(blocks),
+		})
+	})
+
+	// Building page to display graphics of blocks
+	templatePath := filepath.Join("cmd", "templates", "*")
+	//router.LoadHTMLGlob("cmd/templates/*")
+	router.LoadHTMLGlob(templatePath)
+	router.GET("/blocks_renderer", func(c *gin.Context) {
+
+		blocks, err := bc.GetAllBlocks()
+		if err != nil {
+			logger.Error().Err(err).Msg("Failed to get all blocks")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		blockInfos := make([]map[string]interface{}, len(blocks))
+		for i, block := range blocks {
+			blockInfos[i] = map[string]interface{}{
+				"Index":       strconv.Itoa(block.Index),
+				"Hash":        hex.EncodeToString(block.Hash),
+				"PrevHash":    hex.EncodeToString(block.PrevHash),
+				"Timestamp":   block.Timestamp.String(),
+				"HMAC":        hex.EncodeToString(block.HMAC),
+				"ClientId":    strconv.Itoa(block.Transaction.ClientId),
+				"TrainerId":   strconv.Itoa(block.Transaction.TrainerId),
+				"Amount":      block.Transaction.Amount.String(),
+				"PaymentDate": block.Transaction.PaymentDate.String(),
+				"ShowArrow":   i < len(blocks)-1,
+			}
+		}
+
+		logger.Info().Int("count", len(blocks)).Msg("Retrieved blocks")
+
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"Blocks": blockInfos,
 		})
 	})
 

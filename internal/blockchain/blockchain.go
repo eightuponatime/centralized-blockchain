@@ -35,7 +35,8 @@ type Blockchain struct {
 // NewBlockchain initializes a new blockchain with the given filename and secret key.
 func NewBlockchain(filename, secretKey string) *Blockchain {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout()}).With().Timestamp().Logger()
-	indexFile := "index.dat"
+	//indexFile := "/data/index.dat"
+	indexFile := "cmd/index.dat"
 	index, err := loadIndex(indexFile)
 	if err != nil {
 		logger.Error().Err(err).Str("file", indexFile).Msg("Failed to load index")
