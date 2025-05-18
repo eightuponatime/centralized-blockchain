@@ -26,11 +26,11 @@ func main() {
 	benchFlag := flag.Bool("bench", false, "Run performance benchmark")
 	flag.Parse()
 
-	//filename := "/data/blockchain.dat"
-	filename := "cmd/blockchain.dat"
+	filename := "/data/blockchain.dat"
+	//filename := "cmd/blockchain.dat"
 	secretKey := os.Getenv("SECRET_KEY")
 	if secretKey == "" {
-		secretKey = "my-secret-key-1234567890"
+		//secretKey = "my-secret-key-1234567890"
 		logger.Warn().Msg("SECRET_KEY not set, using default")
 	}
 
