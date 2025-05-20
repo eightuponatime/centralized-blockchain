@@ -284,6 +284,15 @@ func main() {
 		})
 	})
 
+	router.GET("/verify-chain", func(c *gin.Context) {
+		valid, err := bc.VerifyChain()
+		if err != nil || !valid {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Chain verified successfully"})
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8082"

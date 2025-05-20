@@ -491,8 +491,14 @@ func (bc *Blockchain) GetAllBlocks() ([]*models.Block, error) {
 
 // VerifyChain verifies the integrity of the blockchain.
 func (bc *Blockchain) VerifyChain() (bool, error) {
+	bc.mu.Lock()
+	defer bc.mu.Unlock()
+
+	bc.logger.Info().Msg("Starting blockchain verification")
+
 	f, err := os.Open(bc.Filename)
 	if os.IsNotExist(err) {
+		bc.logger.Info().Msg("Blockchain file does not exist, verification passed (empty chain)")
 		return true, nil
 	}
 	if err != nil {
@@ -527,6 +533,17 @@ func (bc *Blockchain) VerifyChain() (bool, error) {
 		prevBlock = block
 		expectedIndex++
 	}
-	bc.logger.Info().Msg("Verification passed")
+
+	if prevBlock != nil {
+		lastIndex, lastHash, _ := bc.getLastBlockInfoInternal()
+		if prevBlock.Index != lastIndex {
+			return false, fmt.Errorf("last block index mismatch: expected %d, got %d", lastIndex, prevBlock.Index)
+		}
+		if !bytes.Equal(prevBlock.Hash, lastHash) {
+			return false, fmt.Errorf("last block hash mismatch: expected %x, got %x", lastHash, prevBlock.Hash)
+		}
+	}
+
+	bc.logger.Info().Msg("Blockchain verification passed successfully")
 	return true, nil
 }
