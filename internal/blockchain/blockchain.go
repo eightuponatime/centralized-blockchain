@@ -17,7 +17,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Blockchain manages a blockchain stored in a file with an index.
+// Blockchain struct manages a blockchain stored in a file with an index
 type Blockchain struct {
 	Filename      string
 	SecretKey     []byte
@@ -32,7 +32,7 @@ type Blockchain struct {
 	logger zerolog.Logger
 }
 
-// NewBlockchain initializes a new blockchain with the given filename and secret key.
+// Initializes a new blockchain with the given filename and secret key
 func NewBlockchain(filename, secretKey string) *Blockchain {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout()}).With().Timestamp().Logger()
 	indexFile := "/data/index.dat"
@@ -55,7 +55,7 @@ func NewBlockchain(filename, secretKey string) *Blockchain {
 	return bc
 }
 
-// loadIndex loads or creates the index from the index file.
+// Loads or creates the index from the index file
 func loadIndex(indexFile string) (*models.Index, error) {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout()}).With().Timestamp().Logger()
 	f, err := os.Open(indexFile)
@@ -111,7 +111,7 @@ func (bc *Blockchain) calculateHMAC(block *models.Block) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-// CreateGenesisBlock creates the genesis block with the given transaction.
+// Creates the genesis block with the given transaction
 func (bc *Blockchain) CreateGenesisBlock(transaction *models.Transaction) (*models.Block, error) {
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
@@ -164,7 +164,7 @@ func (bc *Blockchain) CreateGenesisBlock(transaction *models.Transaction) (*mode
 	return block, nil
 }
 
-// AddBlockToFile appends a block to the blockchain file and updates the index.
+// Appends a block to the blockchain file and updates the index
 func (bc *Blockchain) AddBlockToFile(block *models.Block) (int64, error) {
 	f, err := os.OpenFile(bc.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -194,7 +194,7 @@ func (bc *Blockchain) AddBlockToFile(block *models.Block) (int64, error) {
 	return offset, nil
 }
 
-// NewBlock creates a new block with the given transaction.
+// Creates a new block with the given transaction
 func (bc *Blockchain) NewBlock(transaction *models.Transaction) (*models.Block, error) {
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
@@ -247,14 +247,14 @@ func (bc *Blockchain) NewBlock(transaction *models.Transaction) (*models.Block, 
 	return block, nil
 }
 
-// GetLastBlockInfo returns the index and hash of the last block.
+// Returns the index and hash of the last block.
 func (bc *Blockchain) GetLastBlockInfo() (int, []byte, error) {
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
 	return bc.getLastBlockInfoInternal()
 }
 
-// getLastBlockInfoInternal retrieves the last block info without locking (assumes mutex is held).
+// Retrieves the last block info without locking (assumes mutex is held).
 func (bc *Blockchain) getLastBlockInfoInternal() (int, []byte, error) {
 	if bc.lastBlockInfo.Index == 0 {
 		return 0, nil, nil
@@ -262,7 +262,7 @@ func (bc *Blockchain) getLastBlockInfoInternal() (int, []byte, error) {
 	return bc.lastBlockInfo.Index, bc.lastBlockInfo.Hash, nil
 }
 
-// loadLastBlockInfo loads the last block info from the blockchain file.
+// Loads the last block info from the blockchain file.
 func (bc *Blockchain) loadLastBlockInfo() error {
 	f, err := os.Open(bc.Filename)
 	if os.IsNotExist(err) {
@@ -309,7 +309,7 @@ func (bc *Blockchain) loadLastBlockInfo() error {
 	return nil
 }
 
-// FindBlocksByClientId retrieves blocks by client ID using the index.
+// Retrieves blocks by client ID using the index.
 func (bc *Blockchain) FindBlocksByClientId(clientId int) ([]*models.Block, error) {
 	blockIndices, ok := bc.Index.ByClientId[clientId]
 	if !ok || len(blockIndices) == 0 {
@@ -343,7 +343,7 @@ func (bc *Blockchain) FindBlocksByClientId(clientId int) ([]*models.Block, error
 	return blocks, nil
 }
 
-// FindBlocksByClientTrainerId retrieves blocks by client and trainer IDs using the index.
+// Retrieves blocks by client and trainer IDs using the index.
 func (bc *Blockchain) FindBlocksByClientTrainerId(clientId, trainerId int) ([]*models.Block, error) {
 	key := fmt.Sprintf("%d:%d", clientId, trainerId)
 	blockIndices, ok := bc.Index.ByClientTrainerId[key]
@@ -382,7 +382,7 @@ func (bc *Blockchain) FindBlocksByClientTrainerId(clientId, trainerId int) ([]*m
 	return blocks, nil
 }
 
-// FindBlocksByClientIdWithoutIndex retrieves blocks by client ID by scanning the entire file.
+// Retrieves blocks by client ID by scanning the entire file
 func (bc *Blockchain) FindBlocksByClientIdWithoutIndex(clientId int) ([]*models.Block, error) {
 	f, err := os.Open(bc.Filename)
 	if os.IsNotExist(err) {
@@ -417,7 +417,7 @@ func (bc *Blockchain) FindBlocksByClientIdWithoutIndex(clientId int) ([]*models.
 	return blocks, nil
 }
 
-// FindBlocksByClientTrainerIdWithoutIndex retrieves blocks by client and trainer IDs by scanning the entire file.
+// Retrieves blocks by client and trainer IDs by scanning the entire file.
 func (bc *Blockchain) FindBlocksByClientTrainerIdWithoutIndex(clientId, trainerId int) ([]*models.Block, error) {
 	f, err := os.Open(bc.Filename)
 	if os.IsNotExist(err) {
@@ -456,7 +456,7 @@ func (bc *Blockchain) FindBlocksByClientTrainerIdWithoutIndex(clientId, trainerI
 	return blocks, nil
 }
 
-// GetAllBlocks retrieves all blocks from the blockchain file.
+// Retrieves all blocks from the blockchain file
 func (bc *Blockchain) GetAllBlocks() ([]*models.Block, error) {
 	f, err := os.Open(bc.Filename)
 	if os.IsNotExist(err) {
@@ -489,7 +489,7 @@ func (bc *Blockchain) GetAllBlocks() ([]*models.Block, error) {
 	return blocks, nil
 }
 
-// VerifyChain verifies the integrity of the blockchain.
+// Verifies the integrity of the blockchain
 func (bc *Blockchain) VerifyChain() (bool, error) {
 	bc.mu.Lock()
 	defer bc.mu.Unlock()

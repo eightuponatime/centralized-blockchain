@@ -17,7 +17,7 @@ const (
 	MaxAmountDataSize         = 100 * 1024      // 100KB
 )
 
-// Transaction represents a blockchain transaction.
+// Represents a blockchain transaction
 type Transaction struct {
 	TrainerId   int             `json:"trainerId"`
 	ClientId    int             `json:"clientId"`
@@ -25,7 +25,7 @@ type Transaction struct {
 	Amount      decimal.Decimal `json:"amount"`
 }
 
-// Serialize serializes the transaction to a byte slice.
+// Serializes the transaction to a byte slice
 func (t *Transaction) Serialize() ([]byte, error) {
 	var outerBuf, innerDataBuf bytes.Buffer
 
@@ -61,7 +61,7 @@ func (t *Transaction) Serialize() ([]byte, error) {
 	return outerBuf.Bytes(), nil
 }
 
-// DeserializeTransaction deserializes a transaction from a reader.
+// Deserializes a transaction from a reader
 func DeserializeTransaction(reader io.Reader) (*Transaction, error) {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout()}).With().Timestamp().Logger()
 	var totalPayloadLength int32

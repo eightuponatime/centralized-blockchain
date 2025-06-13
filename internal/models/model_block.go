@@ -18,7 +18,7 @@ const (
 	Sha256HashSize              = 32               // SHA256 hash size
 )
 
-// Block represents a block in the blockchain.
+// Block struct represents a block in the blockchain
 type Block struct {
 	Index       int
 	Hash        []byte
@@ -28,7 +28,7 @@ type Block struct {
 	HMAC        []byte
 }
 
-// BlockIndex represents an index entry for a block.
+// BlockIndex struct represents an index entry for a block
 type BlockIndex struct {
 	ClientId  int
 	TrainerId int
@@ -37,13 +37,13 @@ type BlockIndex struct {
 	HMAC      []byte
 }
 
-// Index manages block indices for efficient lookup.
+// Index struct manages block indices for efficient lookup
 type Index struct {
 	ByClientId        map[int][]BlockIndex
 	ByClientTrainerId map[string][]BlockIndex 
 }
 
-// NewIndex creates a new index.
+// NewIndex struct creates a new index
 func NewIndex() *Index {
 	return &Index{
 		ByClientId:        make(map[int][]BlockIndex),
@@ -51,7 +51,7 @@ func NewIndex() *Index {
 	}
 }
 
-// Add adds a block to the index.
+// Adds a block to the indexk
 func (idx *Index) Add(block *Block, offset int64) {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout()}).With().Timestamp().Logger()
 	if block == nil || block.Transaction == nil {
@@ -72,7 +72,7 @@ func (idx *Index) Add(block *Block, offset int64) {
 	idx.ByClientTrainerId[key] = append(idx.ByClientTrainerId[key], entry)
 }
 
-// VerifyHMAC verifies the block's HMAC using the provided secret key.
+// Verifies the block's HMAC using the provided secret key
 func (b *Block) VerifyHMAC(secretKey []byte) (bool, error) {
 	if b.HMAC == nil {
 		return false, fmt.Errorf("HMAC is nil for block %d", b.Index)
@@ -84,7 +84,7 @@ func (b *Block) VerifyHMAC(secretKey []byte) (bool, error) {
 	return hmac.Equal(b.HMAC, expectedHMAC), nil
 }
 
-// CalculateHMAC computes the HMAC for the block.
+// Computes the HMAC for the block
 func (b *Block) CalculateHMAC(secretKey []byte) ([]byte, error) {
 	data, err := b.SerializeWithoutHMAC()
 	if err != nil {
@@ -95,7 +95,7 @@ func (b *Block) CalculateHMAC(secretKey []byte) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-// SerializeWithoutHMAC serializes the block without the HMAC field.
+// Serializes the block without the HMAC field
 func (b *Block) SerializeWithoutHMAC() ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -124,7 +124,7 @@ func (b *Block) SerializeWithoutHMAC() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// SerializeBlock serializes the entire block for storage.
+// Serializes the entire block for storage
 func SerializeBlock(b *Block) ([]byte, error) {
 	var buf bytes.Buffer
 
